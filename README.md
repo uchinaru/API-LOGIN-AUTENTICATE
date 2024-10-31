@@ -18,3 +18,8 @@
  - <artifactId>spring-boot-starter-tomcat</artifactId>
  - <artifactId>spring-boot-starter-test</artifactId>
  - <artifactId>jbcrypt</artifactId>
+
+
+### Fix 🛠️
+
+Atualizei a versão do `SpringToolSuite4` e tomei erro ao acessar os `@Getter` e `@Setter` pois desconfigurou o `Lombok`, achei um tutorial que resolveu tranquilamente. [Aqui](https://dicasdeprogramacao.com.br/como-configurar-o-lombok-no-eclipse/)
