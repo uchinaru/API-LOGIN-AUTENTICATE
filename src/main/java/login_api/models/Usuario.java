@@ -29,5 +29,6 @@ public class Usuario {
 	@NonNull
 	private String password;
 	
+	@NonNull
 	private String token;
 }
