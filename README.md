@@ -18,6 +18,7 @@
  - <artifactId>spring-boot-starter-tomcat</artifactId>
  - <artifactId>spring-boot-starter-test</artifactId>
  - <artifactId>jbcrypt</artifactId>
+ - <artifactId>java-jwt</artifactId>	
 
 
 ### Fix 🛠️
