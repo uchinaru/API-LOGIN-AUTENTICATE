@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+
 import login_api.models.Usuario;
 import login_api.repository.UsuarioRepository;
+import login_api.utils.JwtUtils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,11 +34,15 @@ public class UsuarioController {
 	@Autowired
 	UsuarioRepository usuarioRepository;
 	
+	@Autowired
+	JwtUtils jwtUtils;
+	
 	@RequestMapping(path = "/novo", method = {RequestMethod.POST,RequestMethod.PUT})
 	public String cadastrar(Usuario usuario) {
 
 		if (validate(usuario)) {
 			try {
+				usuario.setToken(jwtUtils.gerarToken(usuario));
 				usuario.setPassword(BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt()));
 				usuarioRepository.save(usuario);
 				return "Cadastrado com sucesso!";
@@ -67,6 +76,11 @@ public class UsuarioController {
 			retorno = "Preencha o campo senha";
 			return false;
 		}
+
+		if(usuario.getToken().isEmpty()) {
+			retorno = "Preencha o campo palavra secreta";
+			return false;
+		}
 		
 		if(usuario.getLogin().length() < 8) {
 			retorno = "O login precisa ter no minimo 8 caracteres!";
@@ -77,7 +91,11 @@ public class UsuarioController {
 			retorno = "A senha precisa ter no minimo 8 caracteres!";
 			return false;
 		}
-		
+
+		if(usuario.getToken().length() < 8) {
+			retorno = "A palavra secreta precisa ter no minimo 8 caracteres!";
+			return false;
+		}
 		return true;
 	}
 }
