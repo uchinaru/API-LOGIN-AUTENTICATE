@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         const login = document.getElementById("login").value;
         const password = document.getElementById("password").value;
-        const palavra = document.getElementById("palavraSecreta").value;
+        const palavraSecreta = document.getElementById("palavraSecreta").value;
         
-        await addUser({ login, password, palavra });
+        await addUser({ login, password, palavraSecreta });
         fetchUsers();
         e.target.reset();
     });
@@ -42,7 +42,7 @@ async function addUser(user) {
     const formData = new URLSearchParams();
     formData.append("login", user.login);
     formData.append("password", user.password);
-    formData.append("token", user.token);
+    formData.append("palavraSecreta", user.palavraSecreta);
 
     try {
         const response = await fetch('http://localhost:8080/api/novo', {
