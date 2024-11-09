@@ -17,7 +17,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import login_api.models.Usuario;
+import login_api.models.UsuarioDTO;
 import login_api.repository.UsuarioRepository;
+import login_api.utils.EncryptUtils;
 import login_api.utils.JwtUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,22 +31,29 @@ import lombok.Setter;
 @RequestMapping(value = "/api")
 public class UsuarioController {
 	
-	public String retorno;
-	
 	@Autowired
 	UsuarioRepository usuarioRepository;
 	
 	@Autowired
 	JwtUtils jwtUtils;
 	
-	@RequestMapping(path = "/novo", method = {RequestMethod.POST,RequestMethod.PUT})
-	public String cadastrar(Usuario usuario) {
+	@Autowired
+	EncryptUtils encryptUtils;
 
-		if (validate(usuario)) {
+	public String retorno;
+	
+	@RequestMapping(path = "/novo", method = {RequestMethod.POST,RequestMethod.PUT})
+	public String cadastrar(UsuarioDTO usuarioDTO) {
+
+		if (validate(usuarioDTO)) {
 			try {
-				usuario.setToken(jwtUtils.gerarToken(usuario));
-				usuario.setPassword(BCrypt.hashpw(usuario.getPassword(), BCrypt.gensalt()));
-				usuarioRepository.save(usuario);
+				
+				Usuario user = new Usuario();
+				user.setLogin(usuarioDTO.getLogin());
+				user.setPassword(encryptUtils.encryptPassword(usuarioDTO.getPassword()));
+				user.setToken(jwtUtils.gerarToken(usuarioDTO));
+				
+				usuarioRepository.save(user);
 				return "Cadastrado com sucesso!";
 			} catch (Exception e) {
 				System.out.println("Error ao cadastrar");
@@ -65,34 +74,34 @@ public class UsuarioController {
 		return usuarioRepository.findAll();
 	}
 	
-	public boolean validate(Usuario usuario) {
+	public boolean validate(UsuarioDTO usuarioDTO) {
 		
-		if(usuario.getLogin().isEmpty()) {
+		if(usuarioDTO.getLogin().isEmpty()) {
 			retorno = "Prencha o campo login";
 			return false;
 		}
 		
-		if(usuario.getPassword().isEmpty()) {
+		if(usuarioDTO.getPassword().isEmpty()) {
 			retorno = "Preencha o campo senha";
 			return false;
 		}
 
-		if(usuario.getToken().isEmpty()) {
+		if(usuarioDTO.getPalavraSecreta().isEmpty()) {
 			retorno = "Preencha o campo palavra secreta";
 			return false;
 		}
 		
-		if(usuario.getLogin().length() < 8) {
+		if(usuarioDTO.getLogin().length() < 8) {
 			retorno = "O login precisa ter no minimo 8 caracteres!";
 			return false;
 		}
 
-		if(usuario.getPassword().length() < 8) {
+		if(usuarioDTO.getPassword().length() < 8) {
 			retorno = "A senha precisa ter no minimo 8 caracteres!";
 			return false;
 		}
 
-		if(usuario.getToken().length() < 8) {
+		if(usuarioDTO.getPalavraSecreta().length() < 8) {
 			retorno = "A palavra secreta precisa ter no minimo 8 caracteres!";
 			return false;
 		}
